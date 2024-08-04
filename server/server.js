@@ -16,6 +16,10 @@ dotenv.config({
     path: "./.env",
 })
 
+const route=require("./routes/InfoRoute.routes.js");
+
+app.use('/api/v1',route)
+
 app.listen(8080,()=>{
     console.log("listening on",8080);
 })

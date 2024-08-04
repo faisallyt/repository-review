@@ -19,3 +19,7 @@ dotenv.config({
 app.listen(8080,()=>{
     console.log("listening on",8080);
 })
+
+app.on("error",(error)=>{
+    console.error('server running error',error);
+})

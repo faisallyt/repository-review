@@ -6,7 +6,7 @@ const fileExtractor = require("../utils/fileExtractor.utils.js");
 const Groq = require("groq-sdk");
 
 const groq = new Groq({
-  apikey: "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",
+  apikey: "",
 });
 
 const getInfo = asyncHandler(async (req, res) => {

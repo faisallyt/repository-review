@@ -1,7 +1,7 @@
 const Groq = require("groq-sdk");
 
 const groq = new Groq({
-  apikey: "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",
+  apikey: "",
 });
 async function getGroqChatCompletion(structure) {
   const request =

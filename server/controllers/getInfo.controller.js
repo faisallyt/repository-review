@@ -3,23 +3,24 @@ const { ApiError } = require("../utils/ApiError.utils.js");
 const { ApiResponse } = require("../utils/ApiResponse.utils.js");
 const axios = require("axios");
 const fileExtractor = require("../utils/fileExtractor.utils.js");
-const Groq = require("groq-sdk");
-
-const groq = new Groq({
-  apikey: "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",
-});
+const getGroqChatCompletion = require("../utils/getGroqChatCompletion.utils.js");
 
 const getInfo = asyncHandler(async (req, res) => {
   try {
     const requestUrl = req.body.url;
 
-    const baseUrl = "https://api.github.com/repos/";
-    const customUrl = baseUrl + "faisallyt/cloud-ide/contents";
+    // Extract the username and repository name from the GitHub URL
+    const urlParts = requestUrl.split("github.com/")[1].split("/");
+    const username = urlParts[0];
+    const repository = urlParts[1];
+
+    // Construct the API URL dynamically
+    const customUrl = `https://api.github.com/repos/${username}/${repository}/contents`;
     const structure = await fileExtractor(customUrl);
     console.log(structure);
 
     const chatCompletion = await getGroqChatCompletion(structure);
-    // console.log(chatCompletion);
+    console.log(chatCompletion);
     console.log(chatCompletion.choices[0]?.message?.content || "");
 
     return res
@@ -36,28 +37,5 @@ const getInfo = asyncHandler(async (req, res) => {
     return res.status(500).json(new ApiError(500, "Internal Server Error"));
   }
 });
-
-async function getGroqChatCompletion(structure) {
-  const request = {
-    messages: [
-      {
-        role: "user",
-        content:
-          structure +
-          " Please Rate this Folder structure out of 10 and also tell the pros and cons",
-      },
-    ],
-    model: "llama3-8b-8192",
-  };
-
-  try {
-    const response = await groq.chat.completions.create(request);
-    console.log(response);
-    return response;
-  } catch (error) {
-    console.error(error);
-    throw new ApiError(500, "Internal Server Error");
-  }
-}
 
 module.exports = { getInfo };

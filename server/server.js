@@ -4,6 +4,9 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const cookieparser = require("cookie-parser");
 
+// Load environment variables
+dotenv.config();
+
 app.use(express.json());
 
 app.use(
@@ -12,10 +15,6 @@ app.use(
     credentials: true,
   })
 );
-
-dotenv.config({
-  path: "./.env",
-});
 
 const route = require("./routes/InfoRoute.routes.js");
 

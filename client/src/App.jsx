@@ -1,15 +1,24 @@
-import FolderStructureForm from "./components/FolderStructureForm";
-import "./App.css";
+import { Route, Routes, useLocation } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import LandingPage from "./pages/LandingPage";
+import Home from "./pages/Home";
+import { useEffect } from "react";
 
 function App() {
+  const location = useLocation();
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    const code = queryParams.get("code");
+
+    console.log(code);
+  }, []);
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>Folder Structure Review</h1>
-      </header>
-      <main>
-        <FolderStructureForm />
-      </main>
+    <div className="w-screen">
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/home" element={<Home />} />
+      </Routes>
     </div>
   );
 }

@@ -17,8 +17,10 @@ app.use(
 );
 
 const route = require("./routes/InfoRoute.routes.js");
+const authRoute = require("./routes/auth/githubAuthRoute.js");
 
 app.use("/api/v1", route);
+app.use("/api/v1/auth", authRoute);
 
 app.listen(8000, () => {
   console.log("listening on", 8000);

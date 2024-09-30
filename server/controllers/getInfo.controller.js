@@ -54,4 +54,25 @@ const getInfo = asyncHandler(async (req, res) => {
   }
 });
 
-module.exports = { getInfo };
+const getUserInfo = async (req, res) => {
+  const token = req.get("Authorization");
+
+  try {
+    const response = await axios.get("https://api.github.com/user", {
+      headers: { Authorization: token },
+    });
+
+    return res.status(200).json({
+      success: true,
+      user: response.data,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to get user information",
+    });
+  }
+};
+
+module.exports = { getInfo, getUserInfo };

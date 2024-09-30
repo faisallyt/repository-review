@@ -1,5 +1,11 @@
+import { GridBackgroundDemo } from "../components/Background.jsx";
+
 const LandingPage = () => {
-  return <div>this is the landing Page</div>;
+  return (
+    <div className="absolute top-[0rem] flex justify-center items-center  w-full">
+      <GridBackgroundDemo />
+    </div>
+  );
 };
 
 export default LandingPage;

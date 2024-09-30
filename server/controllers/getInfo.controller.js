@@ -55,7 +55,7 @@ const getInfo = asyncHandler(async (req, res) => {
 });
 
 const getUserInfo = async (req, res) => {
-  const token = req.get("Authorization");
+  const token = req.headers.authorization;
 
   try {
     const response = await axios.get("https://api.github.com/user", {

@@ -23,6 +23,31 @@ const backend_url =
 
 const SidebarDemo = () => {
   const [userData, setUserData] = useState(null);
+  const [followers, setFollowers] = useState(null);
+  const [accessToken, setAccessToken] = useState(null);
+  const [followersUrl, setFollowersUrl] = useState(null);
+
+  useEffect(() => {
+    const getFollowers = async (url) => {
+      if (accessToken) {
+        try {
+          console.log(accessToken);
+          console.log(url);
+          const response = await axios.get(url, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+          });
+
+          setFollowers(response?.data?.length);
+          console.log(response?.data?.length);
+        } catch (error) {
+          console.error("API error:", error);
+        }
+      }
+    };
+    if (followersUrl) {
+      getFollowers(followersUrl);
+    }
+  }, [followersUrl]);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -30,6 +55,7 @@ const SidebarDemo = () => {
         const token = localStorage.getItem("accessToken");
         console.log("Access token:", token); // Log to check if token exists
         if (token) {
+          setAccessToken(token);
           const response = await axios.get(
             `${backend_url}/api/v1/getUserInfo`,
             {
@@ -39,6 +65,7 @@ const SidebarDemo = () => {
           console.log("API response:", response); // Log to check the API response
           if (response?.data?.success) {
             setUserData(response?.data?.user);
+            setFollowersUrl(response?.data?.user?.followers_url);
           }
         } else {
           console.log("No access token found in localStorage.");

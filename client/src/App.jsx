@@ -4,6 +4,8 @@ import LandingPage from "./pages/LandingPage";
 import Home from "./pages/Home";
 import { useEffect } from "react";
 import axios from "axios";
+// import Dashboard from "./pages/Dashboard";
+import SidebarDemo from "./pages/Dashboard";
 
 const backend_url =
   import.meta.env.VITE_APP_BACKEND_URI || "http://localhost:8000";
@@ -46,10 +48,10 @@ function App() {
 
   return (
     <div className="w-screen">
-      <Navbar />
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/home" element={<Home />} />
+        <Route path="/dashboard" element={<SidebarDemo />} />
       </Routes>
     </div>
   );

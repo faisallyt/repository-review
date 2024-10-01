@@ -1,9 +1,13 @@
 import { GridBackgroundDemo } from "../components/Background.jsx";
+import Navbar from "../components/Navbar.jsx";
 
 const LandingPage = () => {
   return (
-    <div className="absolute top-[0rem] flex justify-center items-center  w-full">
-      <GridBackgroundDemo />
+    <div>
+      <Navbar />
+      <div className="absolute top-[0rem] flex justify-center items-center  w-full">
+        <GridBackgroundDemo />
+      </div>
     </div>
   );
 };

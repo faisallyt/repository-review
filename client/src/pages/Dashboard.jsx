@@ -26,28 +26,53 @@ const SidebarDemo = () => {
   const [followers, setFollowers] = useState(null);
   const [accessToken, setAccessToken] = useState(null);
   const [followersUrl, setFollowersUrl] = useState(null);
+  const [following, setFollwing] = useState(null);
+  const [repository, setRepository] = useState(null);
 
-  useEffect(() => {
-    const getFollowers = async (url) => {
-      if (accessToken) {
-        try {
-          console.log(accessToken);
-          console.log(url);
-          const response = await axios.get(url, {
-            headers: { Authorization: `Bearer ${accessToken}` },
-          });
+  //   const getFollowers = async (url) => {
+  //     if (accessToken) {
+  //       try {
+  //         console.log(accessToken);
+  //         console.log(url);
+  //         const response = await axios.get(url, {
+  //           headers: { Authorization: `Bearer ${accessToken}` },
+  //         });
 
-          setFollowers(response?.data?.length);
-          console.log(response?.data?.length);
-        } catch (error) {
-          console.error("API error:", error);
+  //         setFollowers(response?.data?.length);
+  //         console.log(response?.data?.length);
+  //       } catch (error) {
+  //         console.error("API error:", error);
+  //       }
+  //     }
+  //   };
+
+  const apiCaller = async (url, type, token) => {
+    if (token) {
+      try {
+        console.log(token);
+        const response = await axios.get(url, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        console.log(response?.data?.length);
+        switch (type) {
+          case "followers":
+            setFollowers(response?.data?.length);
+            break;
+          case "following":
+            setFollwing(response?.data?.length);
+            break;
+          case "repository":
+            setRepository(response?.data?.length);
+            break;
+          default:
+            console.error("Invalid type provided");
+            break;
         }
+      } catch (error) {
+        console.error("API error:", error);
       }
-    };
-    if (followersUrl) {
-      getFollowers(followersUrl);
     }
-  }, [followersUrl]);
+  };
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -55,7 +80,7 @@ const SidebarDemo = () => {
         const token = localStorage.getItem("accessToken");
         console.log("Access token:", token); // Log to check if token exists
         if (token) {
-          setAccessToken(token);
+          setAccessToken(token); // Store the token in state if needed elsewhere
           const response = await axios.get(
             `${backend_url}/api/v1/getUserInfo`,
             {
@@ -65,7 +90,11 @@ const SidebarDemo = () => {
           console.log("API response:", response); // Log to check the API response
           if (response?.data?.success) {
             setUserData(response?.data?.user);
-            setFollowersUrl(response?.data?.user?.followers_url);
+            apiCaller(response?.data?.user?.followers_url, "followers", token);
+            const followingUrl =
+              response?.data?.user?.following_url.split("{")[0];
+            apiCaller(followingUrl, "following", token);
+            apiCaller(response?.data?.user?.repos_url, "repository", token);
           }
         } else {
           console.log("No access token found in localStorage.");
@@ -147,7 +176,12 @@ const SidebarDemo = () => {
           </div>
         </SidebarBody>
       </Sidebar>
-      <Dashboard userData={userData} />
+      <Dashboard
+        userData={userData}
+        followers={followers}
+        following={following}
+        repository={repository}
+      />
     </div>
   );
 };
@@ -179,33 +213,62 @@ export const LogoIcon = () => {
 };
 
 // Dummy dashboard component with content
-const Dashboard = ({ userData }) => {
+const Dashboard = ({ userData, followers, following, repository }) => {
   return (
     <div className="flex flex-1">
       <div className="p-2 md:p-10 rounded-tl-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 flex flex-col gap-2 flex-1 w-full h-full">
+        {/* Four boxes showing user information */}
         <div className="flex gap-2 flex-wrap ">
-          {[...new Array(4)].map((i) => (
-            <div
-              key={"first" + i}
-              className="h-20  rounded-lg w-full bg-gray-100 dark:bg-neutral-800 animate-pulse flex items-center justify-center">
-              <div className="flex justify-center gap-12 items-center w-full px-10">
-                <img
-                  src={userData?.avatar_url ? userData.avatar_url : ""}
-                  className="h-12 w-12 flex-shrink-0 rounded-full"
-                  alt="Avatar"
-                />
-                <h1 className="text-white text-lg">
-                  Hello <span>{userData?.login}</span>
-                </h1>
-              </div>
+          {/* 1st Box: Hello Username */}
+          <div
+            key={"username-box"}
+            className="h-20 rounded-lg w-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center">
+            <div className="flex justify-center gap-12 items-center w-full px-10">
+              <img
+                src={userData?.avatar_url || ""}
+                className="h-12 w-12 flex-shrink-0 rounded-full"
+                alt="Avatar"
+              />
+              <h1 className="text-white text-lg">
+                Hello <span>{userData?.login}</span>
+              </h1>
             </div>
-          ))}
+          </div>
+
+          {/* 2nd Box: Followers */}
+          <div
+            key={"followers-box"}
+            className="h-20 rounded-lg w-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center">
+            <h2 className="text-white text-lg">
+              Followers: <span>{followers ?? "Loading..."}</span>
+            </h2>
+          </div>
+
+          {/* 3rd Box: Following */}
+          <div
+            key={"following-box"}
+            className="h-20 rounded-lg w-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center">
+            <h2 className="text-white text-lg">
+              Following: <span>{following ?? "Loading..."}</span>
+            </h2>
+          </div>
+
+          {/* 4th Box: Repositories */}
+          <div
+            key={"repositories-box"}
+            className="h-20 rounded-lg w-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center">
+            <h2 className="text-white text-lg">
+              Repositories: <span>{repository ?? "Loading..."}</span>
+            </h2>
+          </div>
         </div>
+
+        {/* Additional content can go here */}
         <div className="flex gap-2 flex-1">
           {[...new Array(2)].map((i) => (
             <div
-              key={"second" + i}
-              className="h-full w-full rounded-lg  bg-gray-100 dark:bg-neutral-800 animate-pulse"></div>
+              key={"additional-content" + i}
+              className="h-full w-full rounded-lg bg-gray-100 dark:bg-neutral-800 animate-pulse"></div>
           ))}
         </div>
       </div>

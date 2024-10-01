@@ -50,7 +50,11 @@ const SidebarDemo = () => {
     if (token) {
       try {
         console.log(token);
-        const response = await axios.get(url, {
+        let fullUrl = url;
+        if (type === "repository") {
+          fullUrl += `?per_page=1000`;
+        }
+        const response = await axios.get(fullUrl, {
           headers: { Authorization: `Bearer ${token}` },
         });
         console.log(response?.data?.length);
@@ -90,6 +94,7 @@ const SidebarDemo = () => {
           console.log("API response:", response); // Log to check the API response
           if (response?.data?.success) {
             setUserData(response?.data?.user);
+
             apiCaller(response?.data?.user?.followers_url, "followers", token);
             const followingUrl =
               response?.data?.user?.following_url.split("{")[0];
@@ -218,7 +223,7 @@ const Dashboard = ({ userData, followers, following, repository }) => {
     <div className="flex flex-1">
       <div className="p-2 md:p-10 rounded-tl-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 flex flex-col gap-2 flex-1 w-full h-full">
         {/* Four boxes showing user information */}
-        <div className="flex gap-2 flex-wrap ">
+        <div className="flex gap-2  ">
           {/* 1st Box: Hello Username */}
           <div
             key={"username-box"}
@@ -240,7 +245,7 @@ const Dashboard = ({ userData, followers, following, repository }) => {
             key={"followers-box"}
             className="h-20 rounded-lg w-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center">
             <h2 className="text-white text-lg">
-              Followers: <span>{followers ?? "Loading..."}</span>
+              Followers: <span>{userData?.followers ?? "Loading..."}</span>
             </h2>
           </div>
 
@@ -249,7 +254,7 @@ const Dashboard = ({ userData, followers, following, repository }) => {
             key={"following-box"}
             className="h-20 rounded-lg w-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center">
             <h2 className="text-white text-lg">
-              Following: <span>{following ?? "Loading..."}</span>
+              Following: <span>{userData?.following ?? "Loading..."}</span>
             </h2>
           </div>
 
@@ -258,7 +263,8 @@ const Dashboard = ({ userData, followers, following, repository }) => {
             key={"repositories-box"}
             className="h-20 rounded-lg w-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center">
             <h2 className="text-white text-lg">
-              Repositories: <span>{repository ?? "Loading..."}</span>
+              Repositories:{" "}
+              <span>{userData?.public_repos ?? "Loading..."}</span>
             </h2>
           </div>
         </div>

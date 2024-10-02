@@ -8,6 +8,7 @@ import {
 import {
   IconArrowLeft,
   IconBrandTabler,
+  IconFolders,
   IconSettings,
   IconUserBolt,
 } from "@tabler/icons-react";
@@ -18,6 +19,8 @@ import { cn } from "../lib/utils.js";
 import { NavLink } from "react-router-dom";
 import logo from "../assets/repo_review-logo.png";
 import axios from "axios";
+import { IconUsers, IconUserPlus } from "@tabler/icons-react";
+
 const backend_url =
   import.meta.env.VITE_APP_BACKEND_URI || "http://localhost:8000";
 
@@ -243,7 +246,8 @@ const Dashboard = ({ userData, followers, following, repository }) => {
           {/* 2nd Box: Followers */}
           <div
             key={"followers-box"}
-            className="h-20 rounded-lg w-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center">
+            className="h-20 rounded-lg w-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center gap-2">
+            <IconUsers stroke={2} color="white" />
             <h2 className="text-white text-lg">
               Followers: <span>{userData?.followers ?? "Loading..."}</span>
             </h2>
@@ -252,7 +256,8 @@ const Dashboard = ({ userData, followers, following, repository }) => {
           {/* 3rd Box: Following */}
           <div
             key={"following-box"}
-            className="h-20 rounded-lg w-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center">
+            className="h-20 rounded-lg w-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center gap-2">
+            <IconUserPlus color="white" stroke={2} />
             <h2 className="text-white text-lg">
               Following: <span>{userData?.following ?? "Loading..."}</span>
             </h2>
@@ -261,7 +266,8 @@ const Dashboard = ({ userData, followers, following, repository }) => {
           {/* 4th Box: Repositories */}
           <div
             key={"repositories-box"}
-            className="h-20 rounded-lg w-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center">
+            className="h-20 rounded-lg w-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center gap-2">
+            <IconFolders stroke={2} color="white" />
             <h2 className="text-white text-lg">
               Repositories:{" "}
               <span>{userData?.public_repos ?? "Loading..."}</span>

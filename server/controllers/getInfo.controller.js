@@ -20,17 +20,27 @@ const getInfo = asyncHandler(async (req, res) => {
     // Construct the API URL dynamically
     const customUrl = `https://api.github.com/repos/${username}/${repository}/contents`;
     console.log(customUrl);
-    const structure = await fileExtractor(customUrl);
-    // console.log(structure);
+    const structure = await fileExtractor.analyzeRepository(
+      customUrl,
+      req.headers.authorization
+    );
+    console.log("structure:", structure.fileStructure);
 
     // Make sure to include these imports:
     // import { GoogleGenerativeAI } from "@google/generative-ai";
+    console.log("hello world");
     const genAI = new GoogleGenerativeAI(geminiApiKey);
+    console.log("hello world2");
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
+    const folderStructureString = JSON.stringify(
+      structure.fileStructure,
+      null,
+      2
+    ); // Converts to a readable format
     const prompt = `You are required to provide a rating out of 10 and a review of the folder structure of the repository mentioned below. The output should be in the form of a structured object like this: {rating: "", good: ["", "", ""], bad: ["", ""]}. 
-     The repository folder structure is:
-     ${structure}`;
+The repository folder structure is:
+${folderStructureString}`;
 
     const result = await model.generateContent(prompt);
     console.log(result.response.text());

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
-import "../App.css"; // Ensure you import the CSS file
-import formatText from "./formatter.js";
+import "../App.css"; // Ensure the CSS file is correctly imported
+import formatText from "./formatter.js"; // Ensure this function is defined
 
 const FolderStructureForm = () => {
   const [url, setUrl] = useState("");
@@ -14,13 +14,21 @@ const FolderStructureForm = () => {
     setLoading(true);
     setError("");
     setResponse(null);
+    const accessToken = localStorage.getItem("accessToken");
 
     try {
-      const res = await axios.post("http://localhost:8000/api/v1/getInfo", {
-        url,
-      });
+      const res = await axios.post(
+        "http://localhost:8000/api/v1/getInfo",
+        { url }, // Send the URL in the body
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`, // Add Authorization in headers
+          },
+        }
+      );
       setResponse(res.data);
     } catch (err) {
+      console.error(err); // Log the error for debugging
       setError("Failed to fetch the folder structure. Please try again.");
     } finally {
       setLoading(false);
@@ -39,7 +47,9 @@ const FolderStructureForm = () => {
           required
           placeholder="https://github.com/username/repository"
         />
-        <button type="submit">Submit</button>
+        <button type="submit" disabled={loading}>
+          Submit
+        </button>
       </form>
 
       {loading && <p className="loading">Loading...</p>}
@@ -48,19 +58,14 @@ const FolderStructureForm = () => {
         <div className="response">
           <h3>Folder Structure:</h3>
           <pre className="structure">
-            {formatText(
-              JSON.stringify(response.data.choices[0].message.content),
-              null,
-              2
-            )}
+            {formatText(JSON.stringify(response.structure, null, 2))}{" "}
+            {/* Ensure response structure is correct */}
           </pre>
           <h3>Rating & Comments:</h3>
           <div
             className="content"
             dangerouslySetInnerHTML={{
-              __html:
-                response.data.message?.content ||
-                "No rating or comments available",
+              __html: response.comments || "No rating or comments available",
             }}
           />
         </div>

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
 import "../App.css"; // Ensure the CSS file is correctly imported
-import formatText from "./formatter.js"; // Ensure this function is defined
 
 const FolderStructureForm = () => {
   const [url, setUrl] = useState("");
@@ -26,7 +25,7 @@ const FolderStructureForm = () => {
           },
         }
       );
-      setResponse(res.data);
+      setResponse(res.data.data); // The response will contain good and bad arrays
     } catch (err) {
       console.error(err); // Log the error for debugging
       setError("Failed to fetch the folder structure. Please try again.");
@@ -56,18 +55,30 @@ const FolderStructureForm = () => {
       {error && <p className="error">{error}</p>}
       {response && (
         <div className="response">
-          <h3>Folder Structure:</h3>
-          <pre className="structure">
-            {formatText(JSON.stringify(response.structure, null, 2))}{" "}
-            {/* Ensure response structure is correct */}
-          </pre>
-          <h3>Rating & Comments:</h3>
-          <div
-            className="content"
-            dangerouslySetInnerHTML={{
-              __html: response.comments || "No rating or comments available",
-            }}
-          />
+          <h3>Rating & Review</h3>
+          <div className="rating-review">
+            <p>
+              <strong>Rating:</strong> {response.rating}/10
+            </p>
+            <h4>Good Points:</h4>
+            <ul>
+              {response.good && response.good.length > 0 ? (
+                response.good.map((point, index) => (
+                  <li key={index}>{point}</li>
+                ))
+              ) : (
+                <li>No good points available.</li>
+              )}
+            </ul>
+            <h4>Areas for Improvement:</h4>
+            <ul>
+              {response.bad && response.bad.length > 0 ? (
+                response.bad.map((point, index) => <li key={index}>{point}</li>)
+              ) : (
+                <li>No areas for improvement available.</li>
+              )}
+            </ul>
+          </div>
         </div>
       )}
     </div>

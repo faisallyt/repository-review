@@ -26,11 +26,9 @@ const getInfo = asyncHandler(async (req, res) => {
     );
     console.log("structure:", structure.fileStructure);
 
-    // Make sure to include these imports:
-    // import { GoogleGenerativeAI } from "@google/generative-ai";
-    console.log("hello world");
+    console.log("Initializing Gemini AI");
     const genAI = new GoogleGenerativeAI(geminiApiKey);
-    console.log("hello world2");
+    console.log("Getting generative model");
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const folderStructureString = JSON.stringify(
@@ -42,24 +40,61 @@ const getInfo = asyncHandler(async (req, res) => {
 The repository folder structure is:
 ${folderStructureString}`;
 
+    console.log("Generating content from Gemini AI");
+    // Generate content from the Gemini AI
     const result = await model.generateContent(prompt);
-    console.log(result.response.text());
+    const aiResponseText = await result.response.text();
 
-    // const chatCompletion = await getGroqChatCompletion(structure);
-    // console.log(chatCompletion);
-    // console.log(chatCompletion.choices[0]?.message?.content || "");
+    console.log("Raw AI response:", aiResponseText); // Log the raw response
 
+    // Function to safely parse the AI response
+    const safeJSONParse = (str) => {
+      // Remove Markdown code block syntax if present
+      const cleanStr = str.replace(/```json\n?|\n?```/g, "").trim();
+
+      try {
+        // Try to parse the cleaned string
+        return JSON.parse(cleanStr);
+      } catch (e) {
+        console.error("Failed to parse cleaned string:", e);
+
+        // If parsing fails, try to further clean up the string
+        const furtherCleanedStr = cleanStr
+          .replace(/(['"])?([a-zA-Z0-9_]+)(['"])?:/g, '"$2":') // Ensure all keys are in double quotes
+          .replace(/'/g, '"') // Replace single quotes with double quotes
+          .replace(/,\s*([\]}])/g, "$1"); // Remove trailing commas
+
+        try {
+          return JSON.parse(furtherCleanedStr);
+        } catch (e2) {
+          console.error("Failed to parse further cleaned string:", e2);
+          throw new Error("Unable to parse AI response");
+        }
+      }
+    };
+
+    // Parse the response to JSON
+    let aiResponseJson;
+    try {
+      aiResponseJson = safeJSONParse(aiResponseText);
+      console.log("Parsed AI response:", aiResponseJson); // Log the parsed response
+    } catch (jsonError) {
+      console.error("Failed to parse AI response as JSON:", jsonError);
+      throw new ApiError(500, "Failed to parse AI response");
+    }
+
+    // Send the parsed response as JSON
     return res
       .status(200)
       .json(
         new ApiResponse(
           200,
-          result.response.text,
+          aiResponseJson,
           "Folder structure fetched successfully"
         )
       );
   } catch (error) {
-    console.error(error);
+    console.error("Error in getInfo:", error);
     return res.status(500).json(new ApiError(500, "Internal Server Error"));
   }
 });
@@ -77,7 +112,7 @@ const getUserInfo = async (req, res) => {
       user: response.data,
     });
   } catch (error) {
-    console.error(error);
+    console.error("Error in getUserInfo:", error);
     return res.status(500).json({
       success: false,
       message: "Failed to get user information",

@@ -12,12 +12,14 @@ const Navbar = () => {
   };
 
   useEffect(() => {
-    const isThereAToken = localStorage.getItem("access_token");
-    setHasToken(true);
+    const isThereAToken = localStorage.getItem("accessToken");
+    if (isThereAToken) {
+      setHasToken(true);
+    }
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("access_token");
+    localStorage.removeItem("accessToken");
     setHasToken(false);
     // window.location.reload();
     navigate("/");
